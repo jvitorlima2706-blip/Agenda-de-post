@@ -1,0 +1,6 @@
+{
+  "name": "Vulpis Core — Cronograma de Conteúdo",
+  "description": "Sistema completo para agência de marketing planejar, aprovar e organizar cronograma de postagens de clientes com fluxo de aprovação e versionamento.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

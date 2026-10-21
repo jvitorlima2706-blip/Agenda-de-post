@@ -1,0 +1,87 @@
+@import "tailwindcss";
+
+@theme {
+  --color-vulpis-azul: #0662CB;
+  --color-vulpis-laranja: #F86904;
+  --color-vulpis-laranjaVivo: #FB7009;
+  --color-vulpis-grafite: #3D3B3C;
+  --color-vulpis-cinza: #464646;
+  --color-vulpis-bege: #F9E8CE;
+  --color-vulpis-branco: #FFFFFF;
+  --color-vulpis-preto: #121212;
+
+  /* Cores de status oficiais do MIV */
+  --color-status-rascunho: #464646;
+  --color-status-producao: #0662CB;
+  --color-status-aguardando: #F2B705;
+  --color-status-ajustes: #D93A2B;
+  --color-status-aprovado: #1E9E5A;
+  --color-status-agendado: #04449A;
+  --color-status-publicado: #146C3E;
+  --color-status-cancelado: #9CA3AF;
+
+  --font-display: "Exo 2", sans-serif;
+  --font-sans: "Montserrat", sans-serif;
+}
+
+body {
+  font-family: var(--font-sans);
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Titles styled strictly per MIV: Exo 2, 700, Italic */
+h1, h2, h3, h4, .font-miv-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-style: italic;
+}
+
+/* Theme classes */
+.theme-claro {
+  background-color: #F9E8CE;
+  color: #3D3B3C;
+}
+
+.theme-escuro {
+  background-color: #121212;
+  color: #F9E8CE;
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #121212;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #464646;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #F86904;
+}
+
+/* Print Styles for Presentation PDF Export */
+@media print {
+  body {
+    background: #FFFFFF !important;
+    color: #3D3B3C !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .print-only {
+    display: block !important;
+  }
+  .page-break {
+    page-break-after: always;
+  }
+}

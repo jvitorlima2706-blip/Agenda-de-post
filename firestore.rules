@@ -1,0 +1,102 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && (
+        request.auth.token.email == 'j.vitorlima2706@gmail.com' ||
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.perfil == 'ADMINISTRADOR'
+      );
+    }
+
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function isGestor() {
+      return isSignedIn() && (isAdmin() || getUserData().perfil == 'GESTOR');
+    }
+
+    function isCriador() {
+      return isSignedIn() && (isAdmin() || getUserData().perfil == 'CRIADOR');
+    }
+
+    // Connection test route for initialization
+    match /test/{docId} {
+      allow read: if true;
+    }
+
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Users collection
+    match /users/{userId} {
+      allow read: if isSignedIn();
+      allow create, update, delete: if isAdmin() || (isSignedIn() && request.auth.uid == userId);
+    }
+
+    // Clientes collection
+    match /clientes/{clienteId} {
+      allow read: if isSignedIn();
+      allow create, update, delete: if isAdmin();
+    }
+
+    // Postagens collection
+    match /postagens/{postagemId} {
+      allow read: if isSignedIn();
+
+      allow create: if isSignedIn() && (
+        isAdmin() ||
+        (isCriador() && request.resource.data.status in ['Rascunho', 'Em produção', 'Aguardando aprovação']) ||
+        (getUserData().perfil == 'CLIENTE' && request.resource.data.status in ['Rascunho', 'Em produção'])
+      );
+
+      allow update: if isSignedIn() && (
+        isAdmin() ||
+        // Creator updating while not approved
+        (isCriador() && resource.data.status != 'Aprovado' && request.resource.data.status != 'Aprovado') ||
+        // Manager reviewing (setting to Aprovado or Ajustes solicitados, adding rating/feedback)
+        (isGestor() && request.resource.data.status in ['Aprovado', 'Ajustes solicitados', 'Aguardando aprovação']) ||
+        // Client updating script, notes or approval feedback
+        (getUserData().perfil == 'CLIENTE')
+      );
+
+      allow delete: if isAdmin() || (isSignedIn() && getUserData().perfil == 'CLIENTE' && resource.data.status == 'Rascunho');
+
+      // Versões subcollection
+      match /versoes/{versaoId} {
+        allow read: if isSignedIn();
+        allow create, update: if isSignedIn() && (isAdmin() || isCriador() || isGestor());
+        allow delete: if isAdmin();
+      }
+
+      // Comentários subcollection
+      match /comentarios/{comentarioId} {
+        allow read: if isSignedIn();
+        allow create, update: if isSignedIn();
+        allow delete: if isAdmin() || (isSignedIn() && resource.data.autorId == request.auth.uid);
+      }
+    }
+
+    // Notificações
+    match /notificacoes/{notificacaoId} {
+      allow read: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if isSignedIn();
+      allow update: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow delete: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+    }
+
+    // Logs de auditoria
+    match /logs/{logId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update, delete: if isAdmin();
+    }
+  }
+}

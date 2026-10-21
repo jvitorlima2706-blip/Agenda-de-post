@@ -1,0 +1,161 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile with role-based access control",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "nome": { "type": "string", "maxLength": 120 },
+        "email": { "type": "string", "maxLength": 150 },
+        "perfil": { "type": "string", "enum": ["ADMINISTRADOR", "GESTOR", "CRIADOR"] },
+        "clientesIds": { "type": "array" },
+        "ativo": { "type": "boolean" },
+        "criadoEm": { "type": "string" }
+      },
+      "required": ["nome", "email", "perfil", "ativo"]
+    },
+    "Cliente": {
+      "title": "Cliente",
+      "description": "Agency client profile and brand guidelines",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "nome": { "type": "string", "maxLength": 150 },
+        "logoUrl": { "type": "string" },
+        "cor": { "type": "string", "maxLength": 20 },
+        "redes": { "type": "array" },
+        "criadoresIds": { "type": "array" },
+        "gestoresIds": { "type": "array" },
+        "briefing": { "type": "string", "maxLength": 4000 },
+        "criadoEm": { "type": "string" },
+        "atualizadoEm": { "type": "string" }
+      },
+      "required": ["nome", "cor"]
+    },
+    "Postagem": {
+      "title": "Postagem",
+      "description": "Scheduled content post with approval lifecycle",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "clienteId": { "type": "string", "maxLength": 128 },
+        "titulo": { "type": "string", "maxLength": 250 },
+        "dataPublicacao": { "type": "string" },
+        "redes": { "type": "array" },
+        "formato": { "type": "string", "enum": ["Reels", "Feed", "Carrossel", "Stories", "Shorts", "Vídeo longo", "TikTok"] },
+        "legenda": { "type": "string", "maxLength": 5000 },
+        "hashtags": { "type": "string", "maxLength": 1000 },
+        "cta": { "type": "string", "maxLength": 500 },
+        "criadorId": { "type": "string", "maxLength": 128 },
+        "gestorId": { "type": "string", "maxLength": 128 },
+        "prazoAprovacao": { "type": "string" },
+        "status": { "type": "string", "enum": ["Rascunho", "Em produção", "Aguardando aprovação", "Ajustes solicitados", "Aprovado", "Agendado", "Publicado", "Cancelado"] },
+        "versaoAtual": { "type": "number" },
+        "nota": { "type": "number" },
+        "observacoes": { "type": "string", "maxLength": 3000 },
+        "enviadoEm": { "type": "string" },
+        "aprovadoEm": { "type": "string" },
+        "linkPublicado": { "type": "string" },
+        "criadoEm": { "type": "string" },
+        "atualizadoEm": { "type": "string" }
+      },
+      "required": ["clienteId", "titulo", "dataPublicacao", "formato", "status"]
+    },
+    "Versao": {
+      "title": "Versao",
+      "description": "Media version snapshot of a post",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "numero": { "type": "number" },
+        "midias": { "type": "array" },
+        "capaUrl": { "type": "string" },
+        "linkExterno": { "type": "string" },
+        "criadoEm": { "type": "string" },
+        "nota": { "type": "number" },
+        "observacaoGeral": { "type": "string" }
+      },
+      "required": ["numero", "criadoEm"]
+    },
+    "Comentario": {
+      "title": "Comentario",
+      "description": "Timestamped or slide-specific review comment",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "versao": { "type": "number" },
+        "tipo": { "type": "string", "enum": ["video", "slide", "legenda", "geral"] },
+        "tempoSegundos": { "type": "number" },
+        "slideIndex": { "type": "number" },
+        "texto": { "type": "string", "maxLength": 2000 },
+        "autorId": { "type": "string" },
+        "autorNome": { "type": "string" },
+        "resolvido": { "type": "boolean" },
+        "resposta": { "type": "string", "maxLength": 2000 },
+        "criadoEm": { "type": "string" }
+      },
+      "required": ["versao", "tipo", "texto", "autorId"]
+    },
+    "Notificacao": {
+      "title": "Notificacao",
+      "description": "In-app system notification",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "tipo": { "type": "string" },
+        "postagemId": { "type": "string" },
+        "mensagem": { "type": "string", "maxLength": 500 },
+        "lida": { "type": "boolean" },
+        "criadoEm": { "type": "string" }
+      },
+      "required": ["userId", "tipo", "mensagem", "lida"]
+    },
+    "Log": {
+      "title": "Log",
+      "description": "Audit trail log entry",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "postagemId": { "type": "string" },
+        "acao": { "type": "string" },
+        "userId": { "type": "string" },
+        "userName": { "type": "string" },
+        "detalhes": { "type": "string" },
+        "criadoEm": { "type": "string" }
+      },
+      "required": ["postagemId", "acao", "userId"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/User" },
+      "description": "User accounts and RBAC profiles"
+    },
+    "/clientes/{clienteId}": {
+      "schema": { "$ref": "#/entities/Cliente" },
+      "description": "Client brands managed by the agency"
+    },
+    "/postagens/{postagemId}": {
+      "schema": { "$ref": "#/entities/Postagem" },
+      "description": "Content calendar posts and scheduling"
+    },
+    "/postagens/{postagemId}/versoes/{versaoId}": {
+      "schema": { "$ref": "#/entities/Versao" },
+      "description": "Media iterations and version history"
+    },
+    "/postagens/{postagemId}/comentarios/{comentarioId}": {
+      "schema": { "$ref": "#/entities/Comentario" },
+      "description": "Timecode and slide review feedback"
+    },
+    "/notificacoes/{notificacaoId}": {
+      "schema": { "$ref": "#/entities/Notificacao" },
+      "description": "In-app alerts and notifications"
+    },
+    "/logs/{logId}": {
+      "schema": { "$ref": "#/entities/Log" },
+      "description": "Audit trails and change history"
+    }
+  }
+}
